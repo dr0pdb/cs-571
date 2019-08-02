@@ -72,6 +72,7 @@ class Heuristic:
 
 
 def printStatistics(initialState, finalState, puzzleStateMapWithItsParent, stateExplored, HeuristicChoice):
+    print("SUCCESS!!!")
     temp = []
     temp.append(Heuristic().getHeuristicName(HeuristicChoice))
     print(Heuristic().getHeuristicName(HeuristicChoice))

@@ -32,7 +32,7 @@ def main():
 
     displayMenu()
     HeuristicChoice = int(input("Waiting for Choice"))
-    if HeuristicChoice > 4 or HeuristicChoice < 0:
+    if HeuristicChoice > 4 or HeuristicChoice <= 0:
         print("Invalid Choice.......")
         return
     else:
