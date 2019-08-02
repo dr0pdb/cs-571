@@ -134,24 +134,23 @@ def printOptimalPath(state, depth, puzzleStateMapWithItsParent):
 
 
 class EightPuzzle:
-    def __init__(self, initialState, goalState, isMonotone=True):
+    def __init__(self, initialState, goalState):
         self.initialPuzzleConfiguration = initialState
         self.finalPuzzleConfiguration = goalState
-        self.isMonotone = isMonotone
 
     def solveEightPuzzle(self, HeuristicChoice):
         global closedLlst
-        openList = Q.PriorityQueue()
+        openList = Q.PriorityQueue() # state, g, h
         openList.put(self.initialPuzzleConfiguration, 0, Heuristic(
             self.finalPuzzleConfiguration).getHeuristicEstimation(
             self.initialPuzzleConfiguration.puzzleState, HeuristicChoice))
-        puzzleStateMapWithItsParent = {}
-        puzzleStateMapWithGvalue = {}
-        closedList = {}
+        puzzleStateMapWithItsParent = {} # stores the parent of a node.
+        puzzleStateMapWithGvalue = {} # stores g value of a node.
+        closedList = {} # stores whether a node is explored or not.
         stateExplored = 0
         puzzleStateMapWithGvalue[self.initialPuzzleConfiguration.puzzleState] = 0
         puzzleStateMapWithItsParent[self.initialPuzzleConfiguration.puzzleState] = None
-        closedLlst[self.initialPuzzleConfiguration.puzzleState] = 1
+        closedLlst[self.initialPuzzleConfiguration.puzzleState] = 1 # mark initial node as explored.
         currentNode = None
         print("State : h(State) , ChildState : h(ChildState) ")
         while not openList.empty():
@@ -166,15 +165,11 @@ class EightPuzzle:
             for stateStringRepresentation in successorState:
                 h = Heuristic(self.finalPuzzleConfiguration).getHeuristicEstimation(stateStringRepresentation,
                                                                                     HeuristicChoice)
-                print(currentNode.puzzleState+ ": " +str(currentNode.hvalue),stateStringRepresentation + " " +str(h))
-                if currentNode.hvalue > 1 + h:
-                    #print(stateStringRepresentation,currentNode.puzzleState)
-                    self.isMonotone = False
+                print(currentNode.puzzleState + ": " +str(currentNode.hvalue), stateStringRepresentation + " " +str(h))
                 closedLlst[stateStringRepresentation] = 1
                 successorStateGvalue = puzzleStateMapWithGvalue[currentNode.puzzleState] + 1
                 if stateStringRepresentation in closedList:
                     if successorStateGvalue <= puzzleStateMapWithGvalue[stateStringRepresentation]:
-                        print("Monotonocity broken.....")
                         puzzleStateMapWithGvalue[stateStringRepresentation] = successorStateGvalue
                         puzzleStateMapWithItsParent[stateStringRepresentation] = currentNode.puzzleState
                         openList.put(State(stateStringRepresentation,
