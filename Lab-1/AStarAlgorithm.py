@@ -3,7 +3,7 @@ import random
 import numpy
 
 from PuzzleState import State
-from Transform import *
+from Utils import *
 
 isTileInclude = False
 cList = {} # closed list.
@@ -17,8 +17,8 @@ class Heuristic:
         return 0
 
     def tilesDisplacedHeuristic(self, state):
-        currentPuzzleState = convertStringToEightPuzzle(state)
-        goalPuzzleState = convertStringToEightPuzzle(self.goalState.puzzleState)
+        currentPuzzleState = convertStringToMatrix(state)
+        goalPuzzleState = convertStringToMatrix(self.goalState.puzzleState)
         h = 0
         for i in range(3):
             for j in range(3):
@@ -30,8 +30,8 @@ class Heuristic:
         return h
 
     def manhattanHeuristic(self, state):
-        currentPuzzleState = convertStringToEightPuzzle(state)
-        goalPuzzleState = convertStringToEightPuzzle(self.goalState.puzzleState)
+        currentPuzzleState = convertStringToMatrix(state)
+        goalPuzzleState = convertStringToMatrix(self.goalState.puzzleState)
         currentCoOrdinate = numpy.arange(18).reshape((9, 2))
 
         for i in range(3):
@@ -92,7 +92,7 @@ def printStatistics(initialState, finalState, puzzleStateParent, stateExplored, 
 
 def printExtremeState(initialState, finalState):
     print("Start State : ")
-    startState = convertStringToEightPuzzle(initialState.puzzleState)
+    startState = convertStringToMatrix(initialState.puzzleState)
     for i in range(3):
         for j in range(3):
             if startState[i][j] == 0:
@@ -101,7 +101,7 @@ def printExtremeState(initialState, finalState):
                 print("T" + str(startState[i][j]), end=" ")
         print()
     print("Goal State : ")
-    goalState = convertStringToEightPuzzle(finalState.puzzleState)
+    goalState = convertStringToMatrix(finalState.puzzleState)
     for i in range(3):
         for j in range(3):
             if goalState[i][j] == 0:
@@ -116,7 +116,7 @@ def printOptimalPath(state, depth, puzzleStateParent):
         return depth
     else:
         totalState = printOptimalPath(puzzleStateParent[state], depth + 1, puzzleStateParent)
-        eightPuzzleConfiguration = convertStringToEightPuzzle(state)
+        eightPuzzleConfiguration = convertStringToMatrix(state)
         for i in range(3):
             for j in range(3):
                 if eightPuzzleConfiguration[i][j] == 0:

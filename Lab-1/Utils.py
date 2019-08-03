@@ -1,4 +1,4 @@
-def convertStringToEightPuzzle(state):
+def convertStringToMatrix(state):
     puzzleMatrix = [[0 for i in range(3)] for j in range(3)]
     puzzleState = state
     for i in range(3):
@@ -6,7 +6,7 @@ def convertStringToEightPuzzle(state):
             puzzleMatrix[i][j] = int(puzzleState[i * 3 + j])
     return puzzleMatrix
 
-def convertEightPuzzleToString(puzzleMatrix):
+def convertMatrixToString(puzzleMatrix):
     stringRep = ""
     for i in range(3):
         for j in range(3):

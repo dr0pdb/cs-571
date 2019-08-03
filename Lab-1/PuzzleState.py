@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from Transform import *
+from Utils import *
 
 
 class State:
@@ -13,7 +13,7 @@ class State:
     def getAllSuccessor(self):
         x = [1, -1, 0, 0]
         y = [0, -0, 1, -1]
-        puzzleMatrix = convertStringToEightPuzzle(self.puzzleState)
+        puzzleMatrix = convertStringToMatrix(self.puzzleState)
         for i in range(3):
             for j in range(3):
                 if puzzleMatrix[i][j] == 0:
@@ -28,7 +28,7 @@ class State:
                 temp = nextSuccessor[blankX + xMove][blankY + yMove]
                 nextSuccessor[blankX + xMove][blankY + yMove] = 0
                 nextSuccessor[blankX][blankY] = temp
-                successorState.append(convertEightPuzzleToString(nextSuccessor))
+                successorState.append(convertMatrixToString(nextSuccessor))
 
         return successorState
 
