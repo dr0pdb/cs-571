@@ -1,13 +1,14 @@
-import queue as Q
+import queue
 import random
 import numpy
 
 from PuzzleState import State
-from Transform import Transform
+from Transform import *
 
 isTileInclude = False
-closedLlst = {}
+cList = {} # closed list.
 
+# Heuristic class for storing the used heuristic and goal state.
 class Heuristic:
     def __init__(self, goalState=None):
         self.goalState = goalState
@@ -16,9 +17,8 @@ class Heuristic:
         return 0
 
     def tilesDisplacedHeuristic(self, state):
-        transform = Transform()
-        currentPuzzleState = transform.convertStringToEightPuzzle(state)
-        goalPuzzleState = transform.convertStringToEightPuzzle(self.goalState.puzzleState)
+        currentPuzzleState = convertStringToEightPuzzle(state)
+        goalPuzzleState = convertStringToEightPuzzle(self.goalState.puzzleState)
         h = 0
         for i in range(3):
             for j in range(3):
@@ -30,9 +30,8 @@ class Heuristic:
         return h
 
     def manhattanHeuristic(self, state):
-        transform = Transform()
-        currentPuzzleState = transform.convertStringToEightPuzzle(state)
-        goalPuzzleState = transform.convertStringToEightPuzzle(self.goalState.puzzleState)
+        currentPuzzleState = convertStringToEightPuzzle(state)
+        goalPuzzleState = convertStringToEightPuzzle(self.goalState.puzzleState)
         currentCoOrdinate = numpy.arange(18).reshape((9, 2))
 
         for i in range(3):
@@ -71,12 +70,12 @@ class Heuristic:
         }[HeuristicChoice]
 
 
-def printStatistics(initialState, finalState, puzzleStateMapWithItsParent, stateExplored, HeuristicChoice):
-    print("SUCCESS!!!")
+def printStatistics(initialState, finalState, puzzleStateParent, stateExplored, HeuristicChoice):
+    print("SUCCESS!")
     temp = []
     temp.append(Heuristic().getHeuristicName(HeuristicChoice))
     print(Heuristic().getHeuristicName(HeuristicChoice))
-    print("Valid Path Exist: ")
+    print("Valid Path Exists: ")
     printExtremeState(finalState, initialState)
 
     print("Total number of states explored.")
@@ -84,7 +83,7 @@ def printStatistics(initialState, finalState, puzzleStateMapWithItsParent, state
     print(stateExplored)
 
     print("Optimal Path : ")
-    statesOnOptimalPath = printOptimalPath(finalState.puzzleState, 0, puzzleStateMapWithItsParent)
+    statesOnOptimalPath = printOptimalPath(finalState.puzzleState, 0, puzzleStateParent)
 
     print("Total number of states on optimal path.")
     temp.append(statesOnOptimalPath)
@@ -98,7 +97,7 @@ def printStatistics(initialState, finalState, puzzleStateMapWithItsParent, state
 
 def printExtremeState(initialState, finalState):
     print("Start State : ")
-    startState = Transform().convertStringToEightPuzzle(initialState.puzzleState)
+    startState = convertStringToEightPuzzle(initialState.puzzleState)
     for i in range(3):
         for j in range(3):
             if startState[i][j] == 0:
@@ -107,7 +106,7 @@ def printExtremeState(initialState, finalState):
                 print("T" + str(startState[i][j]), end=" ")
         print()
     print("Goal State : ")
-    goalState = Transform().convertStringToEightPuzzle(finalState.puzzleState)
+    goalState = convertStringToEightPuzzle(finalState.puzzleState)
     for i in range(3):
         for j in range(3):
             if goalState[i][j] == 0:
@@ -117,12 +116,12 @@ def printExtremeState(initialState, finalState):
         print()
 
 
-def printOptimalPath(state, depth, puzzleStateMapWithItsParent):
+def printOptimalPath(state, depth, puzzleStateParent):
     if state is None:
         return depth
     else:
-        totalState = printOptimalPath(puzzleStateMapWithItsParent[state], depth + 1, puzzleStateMapWithItsParent)
-        eightPuzzleConfiguration = Transform().convertStringToEightPuzzle(state)
+        totalState = printOptimalPath(puzzleStateParent[state], depth + 1, puzzleStateParent)
+        eightPuzzleConfiguration = convertStringToEightPuzzle(state)
         for i in range(3):
             for j in range(3):
                 if eightPuzzleConfiguration[i][j] == 0:
@@ -134,64 +133,71 @@ def printOptimalPath(state, depth, puzzleStateMapWithItsParent):
         return totalState
 
 
-class EightPuzzle:
+def printFailure(initialPuzzleConfiguration, finalPuzzleConfiguration, stateExplored):
+    print("Failed Search")
+    printExtremeState(initialPuzzleConfiguration, finalPuzzleConfiguration)
+    print("Total number of states explored.")
+    print(stateExplored)
+
+
+class EightPuzzleProblem:
     def __init__(self, initialState, goalState):
         self.initialPuzzleConfiguration = initialState
         self.finalPuzzleConfiguration = goalState
 
     def solveEightPuzzle(self, HeuristicChoice):
-        global closedLlst
-        openList = Q.PriorityQueue() # state, g, h
-        openList.put(self.initialPuzzleConfiguration, 0, Heuristic(
-            self.finalPuzzleConfiguration).getHeuristicEstimation(
-            self.initialPuzzleConfiguration.puzzleState, HeuristicChoice))
-        puzzleStateMapWithItsParent = {} # stores the parent of a node.
-        puzzleStateMapWithGvalue = {} # stores g value of a node.
+        global cList
+        olist = queue.PriorityQueue() # state, g, h
+        
+        heuristic_value = Heuristic(self.finalPuzzleConfiguration).getHeuristicEstimation(self.initialPuzzleConfiguration.puzzleState, HeuristicChoice)
+        olist.put(self.initialPuzzleConfiguration, 0, heuristic_value)
+        
+        puzzleStateParent = {} # stores the parent of a node.
+        puzzleStateG = {} # stores g value of a node.
         closedList = {} # stores whether a node is explored or not.
+        
         stateExplored = 0
-        puzzleStateMapWithGvalue[self.initialPuzzleConfiguration.puzzleState] = 0
-        puzzleStateMapWithItsParent[self.initialPuzzleConfiguration.puzzleState] = None
-        closedLlst[self.initialPuzzleConfiguration.puzzleState] = 1 # mark initial node as explored.
+        puzzleStateG[self.initialPuzzleConfiguration.puzzleState] = 0
+        puzzleStateParent[self.initialPuzzleConfiguration.puzzleState] = None
+        cList[self.initialPuzzleConfiguration.puzzleState] = 1 # mark initial node as explored.
         currentNode = None
+        
         print("State : h(State) , ChildState : h(ChildState) ")
-        while not openList.empty():
-            currentNode = openList.get()
+        while not olist.empty():
+            currentNode = olist.get()
             if currentNode.puzzleState in closedList:
                 continue
             if currentNode == self.finalPuzzleConfiguration:
                 return closedList, printStatistics(self.initialPuzzleConfiguration, self.finalPuzzleConfiguration,
-                                                   puzzleStateMapWithItsParent, stateExplored, HeuristicChoice)
+                                                   puzzleStateParent, stateExplored, HeuristicChoice)
 
             successorState = currentNode.getAllSuccessor()
-            for stateStringRepresentation in successorState:
-                h = Heuristic(self.finalPuzzleConfiguration).getHeuristicEstimation(stateStringRepresentation,
+            for successorRep in successorState:
+                h = Heuristic(self.finalPuzzleConfiguration).getHeuristicEstimation(successorRep,
                                                                                     HeuristicChoice)
-                print(currentNode.puzzleState + ": " +str(currentNode.hvalue), stateStringRepresentation + " " +str(h))
-                closedLlst[stateStringRepresentation] = 1
-                successorStateGvalue = puzzleStateMapWithGvalue[currentNode.puzzleState] + 1
-                if stateStringRepresentation in closedList:
-                    if successorStateGvalue <= puzzleStateMapWithGvalue[stateStringRepresentation]:
-                        puzzleStateMapWithGvalue[stateStringRepresentation] = successorStateGvalue
-                        puzzleStateMapWithItsParent[stateStringRepresentation] = currentNode.puzzleState
-                        openList.put(State(stateStringRepresentation,
+                print(currentNode.puzzleState + ": " +str(currentNode.hvalue), successorRep + " " +str(h))
+                cList[successorRep] = 1
+                successorStateGvalue = puzzleStateG[currentNode.puzzleState] + 1
+                
+                if successorRep in closedList:
+                    if successorStateGvalue <= puzzleStateG[successorRep]:
+                        puzzleStateG[successorRep] = successorStateGvalue
+                        puzzleStateParent[successorRep] = currentNode.puzzleState
+                        olist.put(State(successorRep,
                                            successorStateGvalue + h, h, successorStateGvalue))
-                elif stateStringRepresentation in puzzleStateMapWithGvalue:
-                    if successorStateGvalue < puzzleStateMapWithGvalue[stateStringRepresentation]:
-                        puzzleStateMapWithGvalue[stateStringRepresentation] = successorStateGvalue
-                        puzzleStateMapWithItsParent[stateStringRepresentation] = currentNode.puzzleState
-                        openList.put(State(stateStringRepresentation,
+                elif successorRep in puzzleStateG:
+                    if successorStateGvalue < puzzleStateG[successorRep]:
+                        puzzleStateG[successorRep] = successorStateGvalue
+                        puzzleStateParent[successorRep] = currentNode.puzzleState
+                        olist.put(State(successorRep,
                                            successorStateGvalue + h, h,successorStateGvalue))
                 else:
-                    puzzleStateMapWithGvalue[stateStringRepresentation] = successorStateGvalue
-                    puzzleStateMapWithItsParent[stateStringRepresentation] = currentNode.puzzleState
-                    openList.put(State(stateStringRepresentation, successorStateGvalue + h, h,successorStateGvalue))
+                    puzzleStateG[successorRep] = successorStateGvalue
+                    puzzleStateParent[successorRep] = currentNode.puzzleState
+                    olist.put(State(successorRep, successorStateGvalue + h, h,successorStateGvalue))
             if currentNode.puzzleState not in closedList:
-                #print(currentNode.fvalue)
                 closedList[currentNode.puzzleState] = 1
                 stateExplored += 1
 
         if currentNode != self.finalPuzzleConfiguration:
-            print("Failed Search")
-            printExtremeState(self.initialPuzzleConfiguration, self.finalPuzzleConfiguration)
-            print("Total number of states explored.")
-            print(stateExplored)
+            printFailure(self.initialPuzzleConfiguration, self.finalPuzzleConfiguration, stateExplored)
