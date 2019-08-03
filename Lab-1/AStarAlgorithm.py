@@ -53,44 +53,39 @@ class Heuristic:
     def overEstimatedHeuristic(self, state):
         return random.randint(self.manhattanHeuristic(state) ** 2, 181440)
 
-    def getHeuristicEstimation(self, state, HeuristicChoice):
+    def getHeuristicEstimation(self, state, chosenHeuristic):
         return {
             1: self.zeroHeuristic(),
             2: self.tilesDisplacedHeuristic(state),
             3: self.manhattanHeuristic(state),
             4: self.overEstimatedHeuristic(state)
-        }[HeuristicChoice]
+        }[chosenHeuristic]
 
-    def getHeuristicName(self, HeuristicChoice):
+    def getHeuristicName(self, chosenHeuristic):
         return {
             1: "Zero Heuristic          : ",
             2: "tilesDisplacedHeuristic : ",
             3: "manhattanHeuristic      : ",
             4: "overEstimatedHeuristic  : "
-        }[HeuristicChoice]
+        }[chosenHeuristic]
 
 
 def printStatistics(initialState, finalState, puzzleStateParent, stateExplored, HeuristicChoice):
     print("SUCCESS!")
-    temp = []
-    temp.append(Heuristic().getHeuristicName(HeuristicChoice))
     print(Heuristic().getHeuristicName(HeuristicChoice))
     print("Valid Path Exists: ")
     printExtremeState(finalState, initialState)
 
     print("Total number of states explored.")
-    temp.append(stateExplored)
     print(stateExplored)
 
     print("Optimal Path : ")
     statesOnOptimalPath = printOptimalPath(finalState.puzzleState, 0, puzzleStateParent)
 
     print("Total number of states on optimal path.")
-    temp.append(statesOnOptimalPath)
     print(statesOnOptimalPath)
 
     print("Optimal Cost of the path.")
-    temp.append(statesOnOptimalPath - 1)
     print(statesOnOptimalPath - 1)
     return temp
 

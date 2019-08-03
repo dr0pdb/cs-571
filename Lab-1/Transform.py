@@ -7,8 +7,13 @@ def convertStringToEightPuzzle(state):
     return puzzleMatrix
 
 def convertEightPuzzleToString(puzzleMatrix):
-    stringRepresentationOfState = ""
+    stringRep = ""
     for i in range(3):
         for j in range(3):
-            stringRepresentationOfState += str(puzzleMatrix[i][j])
-    return stringRepresentationOfState
+            stringRep += str(puzzleMatrix[i][j])
+    return stringRep
+
+def replaceTB(txt):
+    txt.replace("T", "")
+    txt.replace("B", "0")
+    return txt

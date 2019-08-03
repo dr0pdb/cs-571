@@ -1,8 +1,7 @@
 import time
 
-from AStarAlgorithm import Heuristic, EightPuzzle
-import AStartAlgorithm
-from PuzzleState import State
+from AStarAlgorithm import *
+from PuzzleState import *
 
 
 def start(startState, goalState):
@@ -40,11 +39,8 @@ if __name__ == '__main__':
             line = line.replace(" ", "")
             goalState += line
 
-    startState = startState.replace("T", "")
-    startState = startState.replace("B", "0")
-
-    goalState = goalState.replace("T", "")
-    goalState = goalState.replace("B", "0")
+    startState = replaceTB(startState)
+    goalState = replaceTB(goalState)
 
     # start the program.
     start(startState, goalState)
