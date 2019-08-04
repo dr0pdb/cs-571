@@ -14,15 +14,17 @@ def start(startState, goalState):
     print("4. h4(n) = heuristics such that h(n) > h∗(n)")
 
     # retrieve choice.
-    HeuristicChoice = int(input("Waiting for Choice"))
+    HeuristicChoice = int(input("Waiting for Choice: "))
     if HeuristicChoice > 4 or HeuristicChoice <= 0:
         print("Invalid Choice.......\n")
         return
     else:
+        start = time.process_time()
         hInitial = Heuristic(goalState).getHeuristicEstimation(startState, HeuristicChoice)
         initialState = State(startState, hInitial, hInitial)
         EightPuzzleProblem(initialState, goalState).solveEightPuzzle(HeuristicChoice)
-
+        print("Time taken by the program in seconds: ")
+        print(time.process_time() - start)
 
 if __name__ == '__main__':
     startState = ""

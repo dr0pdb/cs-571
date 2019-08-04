@@ -14,6 +14,6 @@ def convertMatrixToString(puzzleMatrix):
     return stringRep
 
 def replaceTB(txt):
-    txt.replace("T", "")
-    txt.replace("B", "0")
+    txt = txt.replace("T", "")
+    txt = txt.replace("B", "0")
     return txt

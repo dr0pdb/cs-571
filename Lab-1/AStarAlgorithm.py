@@ -87,7 +87,6 @@ def printStatistics(initialState, finalState, puzzleStateParent, stateExplored, 
 
     print("Optimal Cost of the path.")
     print(statesOnOptimalPath - 1)
-    return temp
 
 
 def printExtremeState(initialState, finalState):
