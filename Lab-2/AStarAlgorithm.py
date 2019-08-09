@@ -135,9 +135,10 @@ def printFailure(initialPuzzleConfiguration, finalPuzzleConfiguration, stateExpl
 
 
 class EightPuzzleProblem:
-    def __init__(self, initialState, goalState):
+    def __init__(self, initialState, goalState, statesVisited = None):
         self.initialPuzzleConfiguration = initialState
         self.finalPuzzleConfiguration = goalState
+        self.statesVisited = set()
 
     def solveEightPuzzle(self, HeuristicChoice):
         global cList
@@ -162,7 +163,8 @@ class EightPuzzleProblem:
             if currentNode.puzzleState in closedList:
                 continue
             if currentNode == self.finalPuzzleConfiguration:
-                return closedList, printStatistics(self.initialPuzzleConfiguration, self.finalPuzzleConfiguration,
+                self.statesVisited.add(currentNode.puzzleState)
+                return self.statesVisited, printStatistics(self.initialPuzzleConfiguration, self.finalPuzzleConfiguration,
                                                    puzzleStateParent, stateExplored, HeuristicChoice)
 
             successorState = currentNode.getAllSuccessor()
@@ -191,6 +193,7 @@ class EightPuzzleProblem:
                     olist.put(State(successorRep, successorStateGvalue + h, h,successorStateGvalue))
             if currentNode.puzzleState not in closedList:
                 closedList[currentNode.puzzleState] = 1
+                self.statesVisited.add(currentNode.puzzleState)
                 stateExplored += 1
 
         if currentNode != self.finalPuzzleConfiguration:
