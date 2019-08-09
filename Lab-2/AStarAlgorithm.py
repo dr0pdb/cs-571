@@ -5,13 +5,13 @@ import numpy
 from PuzzleState import State
 from Utils import *
 
-isTileInclude = False
 cList = {} # closed list.
 
 # Heuristic class for storing the used heuristic and goal state.
 class Heuristic:
-    def __init__(self, goalState=None):
+    def __init__(self, goalState=None, considerEmptyTile = False):
         self.goalState = goalState
+        self.considerEmptyTile = considerEmptyTile
 
     def zeroHeuristic(self):
         return 0
@@ -25,7 +25,7 @@ class Heuristic:
                 if currentPuzzleState[i][j] != goalPuzzleState[i][j]:
                     h += 1
                 if currentPuzzleState[i][j] == 0 and currentPuzzleState[i][j] != goalPuzzleState[i][
-                    j] and isTileInclude == False:
+                    j] and (self.considerEmptyTile == False):
                     h -= 1
         return h
 
@@ -45,7 +45,7 @@ class Heuristic:
                 if goalPuzzleState[i][j] != 0:
                     h += abs(i - currentCoOrdinate[goalPuzzleState[i][j]][0]) + \
                          abs(j - currentCoOrdinate[goalPuzzleState[i][j]][1])
-                if goalPuzzleState[i][j] == 0 and isTileInclude:
+                if goalPuzzleState[i][j] == 0 and self.considerEmptyTile:
                     h += abs(i - currentCoOrdinate[goalPuzzleState[i][j]][0]) + \
                          abs(j - currentCoOrdinate[goalPuzzleState[i][j]][1])
         return h
@@ -70,7 +70,7 @@ class Heuristic:
         }[chosenHeuristic]
 
 
-def printStatistics(initialState, finalState, puzzleStateParent, stateExplored, HeuristicChoice):
+def printStatistics(initialState, finalState, puzzleStateParent, stateExplored, HeuristicChoice, monotone_restriction_followed):
     print("SUCCESS!")
     print(Heuristic().getHeuristicName(HeuristicChoice))
     print("Valid Path Exists: ")
@@ -87,6 +87,11 @@ def printStatistics(initialState, finalState, puzzleStateParent, stateExplored, 
 
     print("Optimal Cost of the path.")
     print(statesOnOptimalPath - 1)
+
+    if monotone_restriction_followed:
+        print("Monotone restriction: FOLLOWED")
+    else:
+        print("Monotone restriction: NOT FOLLOWED")
 
 
 def printExtremeState(initialState, finalState):
@@ -139,6 +144,7 @@ class EightPuzzleProblem:
         self.initialPuzzleConfiguration = initialState
         self.finalPuzzleConfiguration = goalState
         self.statesVisited = set()
+        self.monotone_restriction_followed = True
 
     def solveEightPuzzle(self, HeuristicChoice):
         global cList
@@ -165,8 +171,7 @@ class EightPuzzleProblem:
             if currentNode == self.finalPuzzleConfiguration:
                 self.statesVisited.add(currentNode.puzzleState)
                 return self.statesVisited, printStatistics(self.initialPuzzleConfiguration, self.finalPuzzleConfiguration,
-                                                   puzzleStateParent, stateExplored, HeuristicChoice)
-
+                                                   puzzleStateParent, stateExplored, HeuristicChoice, self.monotone_restriction_followed)
             successorState = currentNode.getAllSuccessor()
             for successorRep in successorState:
                 h = Heuristic(self.finalPuzzleConfiguration).getHeuristicEstimation(successorRep,
@@ -175,6 +180,10 @@ class EightPuzzleProblem:
                 cList[successorRep] = 1
                 successorStateGvalue = puzzleStateG[currentNode.puzzleState] + 1
                 
+                # check for monotone restrictions.
+                if currentNode.hvalue > h + 1:
+                    self.monotone_restriction_followed = False
+
                 if successorRep in closedList:
                     if successorStateGvalue <= puzzleStateG[successorRep]:
                         puzzleStateG[successorRep] = successorStateGvalue
