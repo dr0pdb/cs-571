@@ -1,7 +1,7 @@
 from SimulatedAnnealing import simulated_annealing
 import Heuristic
 from datetime import datetime
-
+from Utils import *
 
 def write_to_file(file, heuristic_choice, start_state, goal_state, cooling_function, temp):
     file.write("Heuristic Chosen : ")
@@ -27,7 +27,37 @@ def write_to_file(file, heuristic_choice, start_state, goal_state, cooling_funct
     file.close()
 
 
-def main():
+def start(startState, goalState, file):
+    print("Enter Choice depending on Heuristic :")
+    print("1.h1(n) = number of tiles displaced from their destined position")
+    print("2.h​2 ​(n)= Total Manhatton distance")
+    print("3.h ​3 ​(n)= h ​1 ​(n) * h ​2 ​(n)")
+
+    HeuristicChoice = int(input("Waiting for Choice: "))
+    if HeuristicChoice == 4:
+    	HeuristicChoice = 3
+
+    is_tile_included = int(input("Enter 1 if consider tile as another tile else 0: "))
+    if is_tile_included:
+        Heuristic.isTileInclude = True
+    print("Enter choice depending on cooling function:\n 1.Linear Function \n 2.Random Strategy \n"
+          " 3.Negative exponential Function \n 4.Positive exponential function\n")
+    cooling_function_choice = int(input("Waiting for Choice: "))
+    initial_temperature = int(input("Enter TMAX: "))
+
+    write_to_file(file, HeuristicChoice, startState, goalState, cooling_function_choice, initial_temperature)
+
+    start_time = datetime.now()
+    puzzle_solver = simulated_annealing(startState, goalState, initial_temperature)
+    status = puzzle_solver.solve_eight_puzzle(startState, HeuristicChoice, cooling_function_choice)
+    file = open("simulated_annealing_result.txt", "a")
+    if status == 1:
+        file.write("Search Status : Failed\n")
+    file.write("Time Taken : {} ".format(str(datetime.now() - start_time)))
+    file.close()
+
+# Starting point of the program.
+if __name__ == '__main__':
     startState = ""
     goalState = ""
 
@@ -45,38 +75,8 @@ def main():
             line = line.replace(" ", "")
             goalState += line
 
-    startState = startState.replace("B", "0")
+    startState = replaceTB(startState)
+    goalState = replaceTB(goalState)
 
-    goalState = goalState.replace("B", "0")
-
-    displayMenu()
-    HeuristicChoice = int(input("Waiting for Choice"))
-    is_tile_included = int(input("Enter 1 if consider tile as another tile else 0 \n"))
-    if is_tile_included:
-        Heuristic.isTileInclude = True
-    print("Enter choice depending on cooling function:\n 1.Linear Function \n 2.Random Strategy \n"
-          "3.Negative exponential Function \n 4.Positive exponential function\n")
-    cooling_function_choice = int(input("Waiting for Choice "))
-    initial_temperature = int(input("Enter TMAX"))
-
-    write_to_file(file, HeuristicChoice, startState, goalState, cooling_function_choice, initial_temperature)
-
-    start_time = datetime.now()
-    puzzle_solver = simulated_annealing(startState, goalState, initial_temperature)
-    status = puzzle_solver.solve_eight_puzzle(startState, HeuristicChoice, cooling_function_choice)
-    file = open("simulated_annealing_result.txt", "a")
-    if status == 1:
-        file.write("Search Status : Failed\n")
-    file.write("Time Taken : {} ".format(str(datetime.now() - start_time)))
-    file.close()
-
-
-def displayMenu():
-    print("Enter Choice depending on Heuristic :")
-    print("1.h1(n) = number of tiles displaced from their destined position")
-    print("2.h​2 ​(n)= Total Manhatton distance")
-    print("4.h ​3 ​(n)= h ​1 ​(n) * h ​2 ​(n)")
-
-
-if __name__ == '__main__':
-    main()
+    # start the program.
+    start(startState, goalState, file)
