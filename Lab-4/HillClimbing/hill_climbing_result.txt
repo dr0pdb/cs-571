@@ -1,0 +1,9 @@
+Heuristic Chosen : 3 * displace tiles - 2 * manhatten distance
+Start State : 
+146
+203
+785
+Goal State : 
+123
+456
+780
