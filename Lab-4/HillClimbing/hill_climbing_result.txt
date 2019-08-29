@@ -1,9 +1,23 @@
-Heuristic Chosen : 3 * displace tiles - 2 * manhatten distance
+Heuristic Chosen : Total manhattan distance 
 Start State : 
-146
-203
-785
+123
+456
+708
 Goal State : 
 123
 456
 780
+The chosen heuristic is admissible!
+Total Number of state explored : 2
+Search Status : Successful
+(sub) optimal Path length: 1 
+(Sub) Optimal Path 
+123
+456
+708
+ ⌄
+123
+456
+780
+ ⌄
+Time Taken : 0:00:00.010593 

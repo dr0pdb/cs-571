@@ -9,7 +9,7 @@ class output_result:
         self.path_length = 0
         sys.setrecursionlimit(181440)
 
-    def write_output_path(self, puzzle_state):
+    def write_output_path(self, puzzle_state, admissibilty):
         stack = [puzzle_state]
 
         while puzzle_state != self.start_state:
@@ -18,6 +18,10 @@ class output_result:
             self.path_length += 1
         stack.pop()
         with open(self.file_name, "a") as f:
+            if admissibilty:
+                f.write("The chosen heuristic is admissible!\n")
+            else:
+                f.write("The chosen heuristic is not admissible!\n")
             f.write("Total Number of state explored : {}\n".format(str(self.state_explored)))
             f.write("Search Status : Successful\n(sub) optimal Path length: {} \n".format(str(self.path_length)))
             f.write("(Sub) Optimal Path \n")

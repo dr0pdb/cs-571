@@ -22,6 +22,7 @@ class simulated_annealing:
         self.step = 0.0000001
         self.x = -temperature / 5
         self.state_explored = 0
+        self.admissible = True
         sys.setrecursionlimit(181440)
 
     def energy_difference(self, current, new):
@@ -44,8 +45,8 @@ class simulated_annealing:
                 self.state_explored += 1
                 out = output_result(self.initial_configuration, "simulated_annealing_result.txt", parent_state,
                                     self.state_explored)
-                out.write_output_path(current_state)
-                print("Goal Achieved!")
+                out.write_output_path(current_state, self.admissible)
+                print("Goal Achieved....")
                 return 0
             elif current_state in state_visited:
                 continue
@@ -58,15 +59,19 @@ class simulated_annealing:
                 ))
                 neighbours = state.getAllSuccessor(heuristic_choice)
                 neighbours.sort()
-                idx, current = 0, 0
-                size = len(neighbours)
-                l = []
-                mark = [0]*size
-                count = 0
-                while count < len(neighbours):
-                    e = self.energy_difference(state, neighbours[current])
-                    if mark[current] == 1 :
-                        current = (current + 1) % size
+                idx, cur = 0, 0
+                sz = len(neighbours)
+                li = []
+                mark = [0]*sz
+                cnt = 0
+                while cnt < len(neighbours):
+                    h = Heuristic(self.final_configuration).getHeuristicEstimation(neighbours[cur].puzzleState, heuristic_choice)
+                    if(state.hvalue > h + 1): # Monotonicity implies admissibility
+                        self.admissible = False
+                    
+                    e = self.energy_difference(state, neighbours[cur])
+                    if mark[cur] == 1 :
+                        cur = (cur + 1) % sz
                         continue
                     if neighbours[current].puzzleState in state_visited :
                         mark[current] = 1
