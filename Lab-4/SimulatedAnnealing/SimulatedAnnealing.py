@@ -25,8 +25,8 @@ class simulated_annealing:
         self.admissible = True
         sys.setrecursionlimit(181440)
 
-    def energy_difference(self, current, new):
-        return -1 * (current.hvalue - new.hvalue)
+    def energy_difference(self, cur, new):
+        return -1 * (cur.hvalue - new.hvalue)
 
     def cooling_temperature(self, choice):
         return {
@@ -36,26 +36,26 @@ class simulated_annealing:
             4: self.positive_exponential(),
         }[choice]
 
-    def solve_eight_puzzle(self, current_state, heuristic_choice, cooling_choice):
-        stack = [current_state]
+    def solve_eight_puzzle(self, cur_state, heuristic_choice, cooling_choice):
+        stack = [cur_state]
         while len(stack) != 0:
-            current_state = stack.pop()
-            print(self.state_explored , current_state)
-            if current_state == self.final_configuration:
+            cur_state = stack.pop()
+            print(self.state_explored , cur_state)
+            if cur_state == self.final_configuration:
                 self.state_explored += 1
                 out = output_result(self.initial_configuration, "simulated_annealing_result.txt", parent_state,
                                     self.state_explored)
-                out.write_output_path(current_state, self.admissible)
+                out.write_output_path(cur_state, self.admissible)
                 print("Goal Achieved....")
                 return 0
-            elif current_state in state_visited:
+            elif cur_state in state_visited:
                 continue
             else:
                 self.cooling_temperature(cooling_choice)
                 self.state_explored += 1
-                state_visited[current_state] = 1
-                state = State(current_state, Heuristic(self.final_configuration).getHeuristicEstimation(
-                    current_state, heuristic_choice
+                state_visited[cur_state] = 1
+                state = State(cur_state, Heuristic(self.final_configuration).getHeuristicEstimation(
+                    cur_state, heuristic_choice
                 ))
                 neighbours = state.getAllSuccessor(heuristic_choice)
                 neighbours.sort()
@@ -73,22 +73,22 @@ class simulated_annealing:
                     if mark[cur] == 1 :
                         cur = (cur + 1) % sz
                         continue
-                    if neighbours[current].puzzleState in state_visited :
-                        mark[current] = 1
-                        count += 1
+                    if neighbours[cur].puzzleState in state_visited :
+                        mark[cur] = 1
+                        cnt += 1
                     elif e <= 0:
-                        mark[current] = 1
-                        count += 1
-                        parent_state[neighbours[current].puzzleState] = current_state
-                        l.append(neighbours[current].puzzleState)
+                        mark[cur] = 1
+                        cnt += 1
+                        parent_state[neighbours[cur].puzzleState] = cur_state
+                        li.append(neighbours[cur].puzzleState)
                     elif exp(-e / self.temperature) < random.uniform(0, 1):
-                        mark[current] = 1
-                        count += 1
-                        parent_state[neighbours[current].puzzleState] = current_state
-                        l.append(neighbours[current].puzzleState)
-                    current = (current+1)%size
-                l.reverse()
-                stack.extend(l)
+                        mark[cur] = 1
+                        cnt += 1
+                        parent_state[neighbours[cur].puzzleState] = cur_state
+                        li.append(neighbours[cur].puzzleState)
+                    cur = (cur+1)%sz
+                li.reverse()
+                stack.extend(li)
 
         return 1
 

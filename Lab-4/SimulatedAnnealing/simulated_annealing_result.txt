@@ -1,0 +1,37 @@
+Chosen Heuristic: Number of tiles displaced from their final position: 
+Start State : 
+013
+425
+786
+Goal State : 
+123
+456
+780
+Cooling Function : Linear Function 
+TMAX : 12
+The chosen heuristic is admissible!
+Total Number of state explored : 5
+Search Status : Successful
+(sub) optimal Path length: 4 
+(Sub) Optimal Path 
+013
+425
+786
+ ⌄
+103
+425
+786
+ ⌄
+123
+405
+786
+ ⌄
+123
+450
+786
+ ⌄
+123
+456
+780
+ ⌄
+Time Taken : 0:00:00.010083 
