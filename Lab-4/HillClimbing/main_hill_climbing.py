@@ -2,6 +2,7 @@ from HillClimbing import hill_climbing
 from datetime import datetime
 from file_utils import *
 from Utils import *
+from Heuristic import *
 
 def start(startState, goalState, file):
     # Menu

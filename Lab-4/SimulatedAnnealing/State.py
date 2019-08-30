@@ -10,7 +10,7 @@ class State:
         self.puzzleState = stateInfo
         self.hvalue = h
 
-    def getAllSuccessor(self, heuristic_choice):
+    def getAllSuccessor(self, heuristic_choice, final_configuration):
         x = [1, -1, 0, 0]
         y = [0, -0, 1, -1]
         
@@ -30,7 +30,7 @@ class State:
                 successorPuzzleMat[blankX + xMove][blankY + yMove] = 0
                 successorPuzzleMat[blankX][blankY] = temp
                 new_state = convertMatrixToString(successorPuzzleMat)
-                successorState.append(State(new_state, Heuristic().getHeuristicEstimation(new_state,heuristic_choice)))
+                successorState.append(State(new_state, Heuristic(final_configuration).getHeuristicEstimation(new_state,heuristic_choice)))
 
         return successorState
 

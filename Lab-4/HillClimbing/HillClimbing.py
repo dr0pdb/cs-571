@@ -5,6 +5,8 @@ from output_util import output_result
 
 import sys
 
+import random
+
 visited_state = {}
 state_parent = {}
 
@@ -29,26 +31,28 @@ class hill_climbing:
                                     self.state_explored)
                 out.write_output_path(current_state, self.admissible)
                 return 0
-            elif current_state in visited_state: # Already visited so skip.
-                continue
             else:
                 self.state_explored += 1
                 visited_state[current_state] = 1
                 state = State(current_state, Heuristic(self.final_configuration).getHeuristicEstimation(
                     current_state, heuristic_choice
                 ))
-                neighbours = state.getAllSuccessor(heuristic_choice) # Get the successors.
-                neighbours.sort() # sort in increasing order of H value.
-                neighbours.reverse() # reverse so that we iterate in decreasing order of H value.
+                neighbours = state.getAllSuccessor(heuristic_choice, self.final_configuration) # Get the successors.
+                local_maxima = True
+                options = []
                 for neighbour in neighbours:
-                    h = Heuristic(self.final_configuration).getHeuristicEstimation(neighbour.puzzleState, heuristic_choice)
-                    if(state.hvalue > h + 1): # Monotonicity implies admissibility
-                        self.admissible = False
-                    if neighbour.hvalue > state.hvalue:
-                        print("stuck in local maxima") # When the neighbour is worse than the current state.
-                    if neighbour.puzzleState in visited_state:
+                    if neighbour.hvalue > state.hvalue or neighbour.puzzleState in visited_state:
                         continue
                     else:
-                        state_parent[neighbour.puzzleState] = current_state
-                        stack.append(neighbour.puzzleState)
+                        local_maxima = False
+                        options.append(neighbour)
+
+                if local_maxima:
+                    print("Stuck in local maxima")
+                else:
+                    sz = len(options)
+                    idx = random.randrange(0, sz)
+                    state_parent[options[idx].puzzleState] = current_state
+                    stack.append(options[idx].puzzleState)
+
         return 1

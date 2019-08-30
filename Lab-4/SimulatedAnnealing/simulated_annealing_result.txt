@@ -1,4 +1,4 @@
-Chosen Heuristic: Number of tiles displaced from their final position: 
+Chosen Heuristic: Total Manhattan distance: 
 Start State : 
 013
 425
@@ -7,8 +7,8 @@ Goal State :
 123
 456
 780
-Cooling Function : Linear Function 
-TMAX : 12
+Cooling Function : Positive Exponential function 
+TMAX : 5
 The chosen heuristic is admissible!
 Total Number of state explored : 5
 Search Status : Successful
@@ -34,4 +34,4 @@ Search Status : Successful
 456
 780
  ⌄
-Time Taken : 0:00:00.010083 
+Time Taken : 0:00:00.020529 

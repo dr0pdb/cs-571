@@ -2,6 +2,7 @@ from SimulatedAnnealing import simulated_annealing
 import Heuristic
 from datetime import datetime
 from Utils import *
+from Heuristic import *
 
 # Writes output to the file
 def write_to_file(file, heuristic_choice, start_state, goal_state, cooling_function, temp):

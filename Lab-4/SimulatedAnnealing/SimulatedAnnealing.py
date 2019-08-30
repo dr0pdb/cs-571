@@ -57,7 +57,7 @@ class simulated_annealing:
                 state = State(cur_state, Heuristic(self.final_configuration).getHeuristicEstimation(
                     cur_state, heuristic_choice
                 ))
-                neighbours = state.getAllSuccessor(heuristic_choice)
+                neighbours = state.getAllSuccessor(heuristic_choice, self.final_configuration)
                 neighbours.sort()
                 idx, cur = 0, 0
                 sz = len(neighbours)
