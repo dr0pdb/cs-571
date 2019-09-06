@@ -1,6 +1,5 @@
 import time
 
-
 def profile(epsilon1, epsilon2, epsilon3, x):
     y = -1
     epsilon4 = epsilon3 + (epsilon2 - epsilon1)
@@ -30,7 +29,7 @@ def fuzzication(epsilon: 'array', x):
     y_small_neg = profile(epsilon1, epsilon2, epsilon3, x)
 
     return y_small_neg, y_zero, y_small_pos
-
+# 0,1,2 
 
 def rules(theta, omega, epsilon_theta: 'array', epsilon_omega: 'array'):
     y_theta = fuzzication(epsilon_theta, theta)
@@ -65,7 +64,6 @@ def defuzzify(epsilon: 'array of epsilon for curr', y):
 def compute_current(theta, omega, epsilon_theta, epsilon_omega, epsilon_curr):
     return (theta+omega)/(-5)
 
-
 def main():
     epsilon_theta = [3, 2, 5]
     epsilon_omega = [2, 2, 4]
@@ -87,5 +85,5 @@ def main():
         print(current)
 
 
-if __name__ == "__main__":
+if __name__ == "_main_":
     main()
