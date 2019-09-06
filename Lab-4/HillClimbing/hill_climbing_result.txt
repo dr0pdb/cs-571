@@ -1,0 +1,39 @@
+Heuristic Chosen : Total manhattan distance 
+Start State : 
+283
+164
+705
+Goal State : 
+123
+804
+765
+The chosen heuristic is admissible!
+Total Number of state explored : 6
+Search Status : Successful
+(sub) optimal Path length: 5 
+(Sub) Optimal Path 
+283
+164
+705
+ ⌄
+283
+104
+765
+ ⌄
+203
+184
+765
+ ⌄
+023
+184
+765
+ ⌄
+123
+084
+765
+ ⌄
+123
+804
+765
+ ⌄
+Time Taken : 0:00:00.014793 
