@@ -1,7 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 from math import sin, cos, radians
-from fuzzification import compute_current
+from backend import *
 
 pygame.init()
 

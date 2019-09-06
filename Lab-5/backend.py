@@ -63,22 +63,7 @@ def defuzzify(epsilon: 'array of epsilon for curr', y):
 
 
 def compute_current(theta, omega, epsilon_theta, epsilon_omega, epsilon_curr):
-    curr_list = rules(theta, omega, epsilon_theta, epsilon_omega)
-
-    dictionary = {0: [-1 * epsilon_curr[0], 0, 0],
-                  1: [0, epsilon_curr[1], epsilon_curr[2]],
-                  2: [epsilon_curr[3], epsilon_curr[4], epsilon_curr[5]],
-                  -1: [-1 * (epsilon_curr[2] + epsilon_curr[1]), -1 * epsilon_curr[2], -1 * epsilon_curr[1]],
-                  - 2: [-1 * (epsilon_curr[5] + epsilon_curr[4] - epsilon_curr[3]), -1 * epsilon_curr[5], -1 * epsilon_curr[4]]
-                  }
-
-    total_area = 0
-    weighted_area = 0
-    for tup in curr_list:
-        centroid, area = defuzzify(dictionary[tup[1]], tup[0])
-        weighted_area += (centroid * area)
-        total_area += area
-    return weighted_area / total_area
+    return (theta+omega)/(-5)
 
 
 def main():
