@@ -29,7 +29,6 @@ def fuzzication(epsilon: 'array', x):
     y_small_neg = profile(epsilon1, epsilon2, epsilon3, x)
 
     return y_small_neg, y_zero, y_small_pos
-# 0,1,2 
 
 def rules(theta, omega, epsilon_theta: 'array', epsilon_omega: 'array'):
     y_theta = fuzzication(epsilon_theta, theta)
@@ -85,5 +84,5 @@ def main():
         print(current)
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     main()

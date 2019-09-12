@@ -5,35 +5,34 @@ from backend import *
 
 pygame.init()
 
-WINDOWSIZE = 800
+SZ_WINDOW = 800
 TIMETICK = 20
-BOBSIZE = 15
+SZ_BOB = 15
 epsilon_theta = [3, 2, 5]
 epsilon_omega = [2, 2, 4]
 epsilon_curr = [2, 4, 8, 6, 10, 12]
 
-window = pygame.display.set_mode((WINDOWSIZE, WINDOWSIZE))
+window = pygame.display.set_mode((SZ_WINDOW, SZ_WINDOW))
 pygame.display.set_caption("Inverted Pendulum Fuzzy Logic")
 
-screen = pygame.display.get_surface()
-screen.fill((255, 255, 255))
+pygame_screen = pygame.display.get_surface()
+pygame_screen.fill((255, 255, 255))
 
-PIVOT = (WINDOWSIZE //2 , 9 * WINDOWSIZE // 10)
-SWINGLENGTH = 320
+PIVOT = (SZ_WINDOW //2 , 9 * SZ_WINDOW // 10)
+LEN_SWING = 320
 
 
-class BobMass(pygame.sprite.Sprite):
+class Mass(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.theta = -1
         self.dtheta = 1
-        # Rect(left, top, width, height)
-        self.rect = pygame.Rect(int(PIVOT[0] - SWINGLENGTH * cos(self.theta)),
-                                int(PIVOT[1] - SWINGLENGTH * sin(self.theta)),
+        self.rect = pygame.Rect(int(PIVOT[0] - LEN_SWING * cos(self.theta)),
+                                int(PIVOT[1] - LEN_SWING * sin(self.theta)),
                                 1, 1)
         self.draw()
 
-    def recomputeAngle(self):
+    def compute_angle(self):
 
         current = compute_current(
             self.theta, self.dtheta, epsilon_theta, epsilon_omega, epsilon_curr)
@@ -42,33 +41,28 @@ class BobMass(pygame.sprite.Sprite):
         self.theta, self.dtheta = theta_new, omega_new
         print(theta_new, omega_new)
 
-        # Rect(left, top, width, height)
         self.rect = pygame.Rect(PIVOT[0] -
-                                SWINGLENGTH * sin(self.theta),
+                                LEN_SWING * sin(self.theta),
                                 PIVOT[1] -
-                                SWINGLENGTH * cos(self.theta), 1, 1)
+                                LEN_SWING * cos(self.theta), 1, 1)
 
     def draw(self):
-        # pygame.draw.circle(Surface, color, pos, radius, width=0)
-        # pos is a tuple of (x, y)
-        pygame.draw.circle(screen, (0, 0, 0), PIVOT, 5, 0)
-        pygame.draw.circle(screen, (0, 0, 0), self.rect.center, BOBSIZE, 0)
-        # aaline(Surface, color, startpos, endpos, blend=1)
-        pygame.draw.aaline(screen, (0, 0, 0), PIVOT, self.rect.center)
-        # line(Surface, color, start_pos, end_pos, width=1)
-        pygame.draw.line(screen, (0, 0, 0), (0, PIVOT[1]), (WINDOWSIZE, PIVOT[1]))
+        pygame.draw.circle(pygame_screen, (0, 0, 0), PIVOT, 5, 0)
+        pygame.draw.circle(pygame_screen, (0, 0, 0), self.rect.center, SZ_BOB, 0)
+        pygame.draw.aaline(pygame_screen, (0, 0, 0), PIVOT, self.rect.center)
+        pygame.draw.line(pygame_screen, (0, 0, 0), (0, PIVOT[1]), (SZ_WINDOW, PIVOT[1]))
 
-    def update(self):
-        self.recomputeAngle()
-        screen.fill((255, 255, 255))
+    def update_pygame_screen(self):
+        self.compute_angle() # recompute the angle.
+        pygame_screen.fill((255, 255, 255))
         self.draw()
 
 
-bob = BobMass()
+bob = Mass()
 clock = pygame.time.Clock()
 
 
-TICK = USEREVENT
+TICK = USEREVENT # set the time tick as the user event of the pygame.
 pygame.time.set_timer(TICK, TIMETICK)
 
 
@@ -77,17 +71,8 @@ def input(events):
         if event.type == QUIT:
             sys.exit(0)
         elif event.type == TICK:
-            bob.update()
-# flag = True
-# while flag:
-#     for event in pygame.event.get():
-#         if event.type == QUIT:
-#             flag = False
-#     pygame.display.flip()
-#     clock.tick(60)
-#     bob.update()
-#
+            bob.update_pygame_screen()
+
 while True:
-    # clock.tick(60)
     input(pygame.event.get())
     pygame.display.flip()
