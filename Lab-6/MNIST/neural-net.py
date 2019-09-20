@@ -128,7 +128,6 @@ class NeuralNetwork:
               intermediate_results=False):
         intermediate_weights = []
         for epoch in range(epochs):
-            print("*", end="")
             for i in range(len(data_array)):
                 self.train_single(data_array[i],
                                   labels_one_hot_array[i])
@@ -219,6 +218,6 @@ for iterations in range(5):
     loss_vs_learning_ratey.append(current_loss)
     current_learning_rate += 0.05
 
-
+# Plot the graph
 plt.plot(loss_vs_learning_ratex, loss_vs_learning_ratey)
 plt.show()

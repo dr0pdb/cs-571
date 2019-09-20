@@ -1,2 +1,3 @@
 */__pycache__/
-Lab-6/MNIST/data/*
+Lab-6/MNIST/*.csv
+Lab-6/MNIST/*.pkl
