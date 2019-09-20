@@ -9,7 +9,7 @@ no_of_different_labels = 10 #  i.e. 0, 1, 2, 3, ..., 9
 image_pixels = image_size * image_size
 
 if load_from_pickle:
-    with open("data/pickled_mnist.pkl", "br") as fh:
+    with open("pickled_mnist.pkl", "br") as fh:
         data = pickle.load(fh)
     train_imgs = data[0]
     test_imgs = data[1]
@@ -18,7 +18,7 @@ if load_from_pickle:
     train_labels_one_hot = data[4]
     test_labels_one_hot = data[5]
 else :
-    data_path = "data/"
+    data_path = "./"
     train_data = np.loadtxt(data_path + "mnist_train.csv",
                             delimiter=",")
     test_data = np.loadtxt(data_path + "mnist_test.csv",
@@ -44,7 +44,7 @@ else :
     test_labels_one_hot[test_labels_one_hot==1] = 0.99
 
     # dump to pickle.
-    with open("data/pickled_mnist.pkl", "bw") as fh:
+    with open("pickled_mnist.pkl", "bw") as fh:
         data = (train_imgs,
                 test_imgs,
                 train_labels,
@@ -182,6 +182,8 @@ class NeuralNetwork:
 # Create the neural network.
 current_learning_rate = 0.1
 epochs = 5
+loss_vs_learning_ratex = []
+loss_vs_learning_ratey = []
 
 for iterations in range(5):
     ANN = NeuralNetwork(no_of_in_nodes = image_pixels,
@@ -194,6 +196,7 @@ for iterations in range(5):
                         epochs=epochs,
                         intermediate_results=True)
 
+    current_loss = 0
     for i in range(epochs):
         print("epoch: ", i)
         ANN.wih = weights[i][0]
@@ -203,6 +206,7 @@ for iterations in range(5):
         print("Accuracy train: ", corrects / ( corrects + wrongs))
         corrects, wrongs = ANN.evaluate(test_imgs, test_labels)
         print("Accuracy test: ", corrects / ( corrects + wrongs))
+        current_loss += wrongs / (corrects +  wrongs)
 
         cm = ANN.confusion_matrix(train_imgs, train_labels)
         print(cm)
@@ -210,4 +214,11 @@ for iterations in range(5):
             print("digit: ", j, "precision: ", ANN.precision(j, cm), "recall: ", ANN.recall(j, cm))
         print('----------')
 
+    current_loss /= epochs
+    loss_vs_learning_ratex.append(current_learning_rate)
+    loss_vs_learning_ratey.append(current_loss)
     current_learning_rate += 0.05
+
+
+plt.plot(loss_vs_learning_ratex, loss_vs_learning_ratey)
+plt.show()
