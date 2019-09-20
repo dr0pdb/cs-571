@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import truncnorm
 import pickle
 
-load_from_pickle = True
+load_from_pickle = False
 image_size = 28 # width and length
 no_of_different_labels = 10 #  i.e. 0, 1, 2, 3, ..., 9
 image_pixels = image_size * image_size
@@ -183,7 +183,7 @@ class NeuralNetwork:
 current_learning_rate = 0.1
 epochs = 5
 
-for iterations in range(10):
+for iterations in range(5):
     ANN = NeuralNetwork(no_of_in_nodes = image_pixels,
                                    no_of_out_nodes = 10,
                                    no_of_hidden_nodes = 100,
@@ -210,4 +210,4 @@ for iterations in range(10):
             print("digit: ", j, "precision: ", ANN.precision(j, cm), "recall: ", ANN.recall(j, cm))
         print('----------')
 
-    current_learning_rate += 0.1
+    current_learning_rate += 0.05
