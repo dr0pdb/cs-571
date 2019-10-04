@@ -74,19 +74,50 @@ def classify_nb(classifier_data, document):
 def evaluate_nb(classifier_data, testing_data):
     df_test = pd.DataFrame(testing_data, columns=['labels', 'texts'])
     predictions = df_test['texts'].apply(lambda doc: classify_nb(classifier_data, doc))
-    return (df_test['labels'] == predictions).sum() / len(predictions)
+    result = {}
+    result['accuracy'] = (df_test['labels'] == predictions).sum() / len(predictions)
+    total_pos =  0
+    true_pos = 0
+    false_neg = 0
+    for i in range(0, len(predictions)):
+    	if predictions[i] is 'pos':
+    		total_pos = total_pos + 1
+    		if df_test['labels'][i] == 'pos':
+    			true_pos = true_pos + 1
+    	else:
+    		if df_test['labels'][i] == 'pos':
+    			false_neg = false_neg + 1
+    result['precision'] = true_pos / total_pos
+    result['recall'] = true_pos / (true_pos + false_neg)
+    return result
 
 
 def main():
     labeled_corpus = read_corpus('all_sentiment_shuffled.txt')
-    split = round(len(labeled_corpus) * 0.8)
-    training_data = labeled_corpus[:split]
-    testing_data = labeled_corpus[split:]
-    prob_neg, df_probs, probs_unknowns = train_nb(training_data, 1)
-    probs_sentiment = (math.log(prob_neg), math.log(1-prob_neg))
-    classifier_data = (probs_sentiment, df_probs, probs_unknowns)
-    print('Classication accuracy for the test set is: {}'.format(evaluate_nb(classifier_data, testing_data)))
-
+    n = len(labeled_corpus)
+#     print(n)
+    window_size = math.floor(n/5)
+    i = 0
+    while i<n: 
+        begin = i
+        end  = i+ window_size
+    
+        training_data = labeled_corpus[:begin]
+        if end>n:
+            end = n-1 
+        testing_data = labeled_corpus[begin:end]
+        training_data += labeled_corpus[end:]
+        prob_neg, df_probs, probs_unknowns = train_nb(training_data, 1)
+        probs_sentiment = (math.log(prob_neg), math.log(1-prob_neg))
+        classifier_data = (probs_sentiment, df_probs, probs_unknowns)
+        print(i, end)
+        result = evaluate_nb(classifier_data, testing_data)
+        result['fscore'] = 2 * ((result['precision'] * result['recall'])/(result['precision'] + result['recall']))
+        print('Classication accuracy for the test set is: {}'.format(result['accuracy']))
+        print('Precision is: {}'.format(result['precision']))
+        print('Recall is: {}'.format(result['recall']))
+        print('F-score is: {}'.format(result['fscore']))
+        i = i + window_size
 
 if __name__ == '__main__':
     main()
