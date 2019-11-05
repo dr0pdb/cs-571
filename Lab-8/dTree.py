@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import string
+import nltk
 from sklearn.model_selection import KFold
 from sklearn.metrics import classification_report
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
@@ -14,35 +15,36 @@ from copy import deepcopy
 import operator
 from math import log2
 
-import nltk
+# Download required modules
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 
+# Returns n-grams
 def get_ngrams(data, n):
     tokens = [token for token in data.split(" ") if token != ""]
-    output = list(ngrams(tokens, n))    
-    return output
+    res = list(ngrams(tokens, n))    
+    return res
 
+# Get the set of English stop words
 stop_words = set(stopwords.words('english')) 
 
-def get_postag(txt):
-    tokenized = sent_tokenize(txt)
-  
+
+def get_pos_tag(text):
+    tokenized = sent_tokenize(text)
     wordsList = nltk.word_tokenize(tokenized[0]) 
     wordsList = [w for w in wordsList if not w in stop_words]  
     tagged = nltk.pos_tag(wordsList) 
-
     return tagged
 
 
-def buildData(filePath):
+def build_data(file_path):
     data = []
     uni = []
     bi = []
     tri = []
     pos = []
-    file = open(filePath, encoding = "ISO-8859-1")
+    file = open(file_path, encoding = "ISO-8859-1")
 
     for line in file:
         line = line.split(':')
@@ -54,32 +56,27 @@ def buildData(filePath):
         unigram = get_ngrams(row[1], 1)
         bigram = get_ngrams(row[1], 2)
         trigram = get_ngrams(row[1], 3)
-        postag = get_postag(row[1])
+        postag = get_pos_tag(row[1])
 
         row.append(length)
-
         row.append(unigram)
         uni.extend(unigram)
-
         row.append(bigram)
         bi.extend(bigram)
-
         row.append(trigram)
         tri.extend(trigram)
-
         row.append(postag)
         pos.extend(postag)
-
         data.append(row)
 
     return data, uni, bi, tri, pos
 
 
-data, uni, bi, tri, pos = buildData('./traindata.txt')
+data, uni, bi, tri, pos = build_data('./traindata.txt')
 
 
-def frequent_grams(grams, top_n):
-    return Counter(grams).most_common(top_n)
+def frequent_grams(g, top_n):
+    return Counter(g).most_common(top_n)
 
 unigram_counts = frequent_grams(uni, 500)
 bigram_counts = frequent_grams(bi, 300)
@@ -88,22 +85,22 @@ pos_counts = frequent_grams(pos, 500)
 avgLength = mean([row[2] for row in data])
 print(avgLength)
 
-def is_numeric(value):
-    return isinstance(value, int) or isinstance(value, float)
+def is_numeric(val):
+    return isinstance(val, int) or isinstance(val, float)
 
 
 header = ['Label', 'Text', 'Length', 'Unigram', 'Bigram', 'Trigram']
-class Feature:
-    def __init__(self, column, value):
-        self.column = column
-        self.value = value
 
-    def match(self, example):
-        val = example[self.column]
+class Feature:
+    def __init__(self, col, val):
+        self.column = col
+        self.value = val
+
+    def match(self, ex):
+        val = ex[self.column]
         
         if is_numeric(val):
             return val <= self.value
-        
         return self.value in val
 
     def __repr__(self):
@@ -123,11 +120,11 @@ def class_fref(rows):
 
 def gini(rows):
     counts = class_fref(rows)
-    impurity = 1
+    imp = 1
     for label in counts:
         prob_of_label = counts[label] / float(len(rows))
-        impurity -= prob_of_label**2
-    return impurity
+        imp -= prob_of_label**2
+    return imp
 
 
 def misclassifcation_error(rows):
@@ -142,42 +139,42 @@ def misclassifcation_error(rows):
 
 def entropy(rows):
     counts = class_fref(rows)
-    impurity = 0
+    imp = 0
     for label in counts:
         prob_of_label = counts[label] / float(len(rows))
-        impurity -= prob_of_label*log2(prob_of_label)
-    return impurity
+        imp -= prob_of_label*log2(prob_of_label)
+    return imp
 
-def info_gain(left, right, current_uncertainty, func):
+def info_gain(left, right, curr_uncertainty, func):
     p = float(len(left)) / (len(left) + len(right))
-    return current_uncertainty - p * func(left) - (1 - p) * func(right)
+    return curr_uncertainty - p * func(left) - (1 - p) * func(right)
 
 class Leaf:
-    def __init__(self, rows):
-        self.predictions = class_fref(rows)
+    def __init__(self, r):
+        self.predictions = class_fref(r)
 
 class Decision_Node:
     def __init__(self,
-                 Feature,
-                 true_branch,
-                 false_branch):
-        self.Feature = Feature
-        self.true_branch = true_branch
-        self.false_branch = false_branch
+                 feat,
+                 true_b,
+                 false_b):
+        self.Feature = feat
+        self.true_branch = true_b
+        self.false_branch = false_b
 
 Features = []
 
-for x in unigram_counts:
-    Features.append(Feature(3, x[0]))
+for y in unigram_counts:
+    Features.append(Feature(3, y[0]))
 
-for x in bigram_counts:
-    Features.append(Feature(4, x[0]))
+for y in bigram_counts:
+    Features.append(Feature(4, y[0]))
     
-for x in trigram_counts:
-    Features.append(Feature(5, x[0]))
+for y in trigram_counts:
+    Features.append(Feature(5, y[0]))
 
-for x in pos_counts:
-    Features.append(Feature(6, x[0]))
+for y in pos_counts:
+    Features.append(Feature(6, y[0]))
     
 Features.append(Feature(2, avgLength))    
     
@@ -188,12 +185,11 @@ def partition(rows, Feature):
     trueRows = []
     falseRows = []
     
-    for r in rows:
-        if Feature.match(r):
-            trueRows.append(r)
+    for row in rows:
+        if Feature.match(row):
+            trueRows.append(row)
         else:
-            falseRows.append(r)
-    
+            falseRows.append(row)
     return trueRows, falseRows
 
 def findBestSplit(rows, Features, func):   
@@ -281,11 +277,11 @@ for trainInd,testInd in kfold.split(data):
     recall.append(recall_score(actual, predicted, average='macro'))
     f_score.append(f1_score(actual, predicted, average='macro'))
      
-    print("Training...")
+    print("Training ...")
 
-print("Precision Score = " + str(mean(precision)))
-print("Recall Score = " + str(mean(recall)))
-print("F Score = " + str(mean(f_score)))
+print("Precision Score: " + str(mean(precision)))
+print("Recall Score: " + str(mean(recall)))
+print("F-Score: " + str(mean(f_score)))
 
 
 # ## Part 2
@@ -299,38 +295,38 @@ def getReport(traindata, testdata, uniFlag=True, biFlag=True, triFlag=True, posF
     allFeatures = []
     
     if uniFlag:
-        for x in unigram_counts:
-            allFeatures.append(Feature(3, x[0]))
+        for y in unigram_counts:
+            allFeatures.append(Feature(3, y[0]))
 
     if biFlag:
-        for x in bigram_counts:
-            allFeatures.append(Feature(4, x[0]))
+        for y in bigram_counts:
+            allFeatures.append(Feature(4, y[0]))
 
     if triFlag:
-        for x in trigram_counts:
-            allFeatures.append(Feature(5, x[0]))
+        for y in trigram_counts:
+            allFeatures.append(Feature(5, y[0]))
 
     if posFlag:
-        for x in pos_counts:
-            allFeatures.append(Feature(6, x[0]))
+        for y in pos_counts:
+            allFeatures.append(Feature(6, y[0]))
 
     if lenFlag:
         allFeatures.append(Feature(2, avgLength))    
 
-    print("No of Features = " + str(len(allFeatures)))
-    print("Training...")
+    print("No of Features: " + str(len(allFeatures)))
+    print("Training ...")
     root = train(traindata, allFeatures, func)
-    print("Predicting...")
+    print("Predicting ...")
     prediction = classify(root, testdata)        
     actual = getActualLabels(testdata)
-    print("Prediction done...")
+    print("Prediction done ...")
     matrix = confusion_matrix(actual, prediction)
     acc = matrix.diagonal()/matrix.sum(axis=1)
     accuracy_report = dict(zip(classes, acc))
     
     return accuracy_report, root, prediction, actual
 
-testdata = buildData('./testdata.txt')[0]
+testdata = build_data('./testdata.txt')[0]
 len(testdata)
 
 print(getReport(traindata=data, testdata=testdata)[0])
@@ -352,15 +348,13 @@ print(getReport(traindata=data, testdata=testdata, lenFlag=False, posFlag=False,
 print(getReport(traindata=data, testdata=testdata, lenFlag=False, posFlag=False, func=misclassifcation_error)[0])
 
 
-# # Error Analysis
-
+#Error Analysis
 def getWrongPrediction(prediction, actual, dataset):
     data_list = []
     
     for i in range(len(prediction)):
         if prediction[i] !=actual[i] :
             data_list.append(dataset[i])  
-            
     return data_list
 
 _ , root_gini, prediction_gini, actual_gini  = getReport(traindata=data, testdata=testdata)
@@ -375,4 +369,3 @@ len(wrong_data_en)
 _ , root_mis, prediction_mis, actual_mis  = getReport(traindata=data, testdata=wrong_data, func=misclassifcation_error)
 wrong_data_mis = getWrongPrediction(prediction_entropy, actual_entropy, wrong_data)
 len(wrong_data_mis)
-
